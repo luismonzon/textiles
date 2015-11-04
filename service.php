@@ -87,12 +87,15 @@ function login($username, $password) {
 		$query = 'Call Crear("'.$id.'","'.$nombre.'","'.$precio.'")';
 		$result = mysql_query($query) or die('Consulta fallida: ' . mysql_error());
 		mysql_close($link);
-		$line = mysql_fetch_array($result, MYSQL_ASSOC) ;
-		$cadena=$line["resultado"]."";
-		mysql_free_result($result);
-		return $cadena;
+		//$line = mysql_fetch_array($result, MYSQL_ASSOC) ;
+		//$cadena=$line["resultado"]."";
+		//mysql_free_result($result);
+		//return $cadena;
 		//	
+		return $result;
+		
 	}
+	
 	
 
 	function Buscar($id){
