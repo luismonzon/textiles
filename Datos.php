@@ -11,7 +11,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Administrador</title>
+    <title>Redes 2 -- Grupo 14</title>
 	
     <!-- Bootstrap Core CSS -->
     <link href="../admin/bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -51,27 +51,28 @@
             <div class="col-md-4 col-md-offset-4">
                 <div class="login-panel panel panel-primary">
                     <div class="panel-heading">
-                        <h3 class="panel-title">Administrador Textiles</h3>
+                        <h3 class="panel-title">Ingreso de Datos</h3>
                     </div>
                     <div class="panel-body">
                         
                             <fieldset>
                                 <div class="form-group">
-                                    <input class="form-control" placeholder="E-mail" id="email" name="email" type="email" autofocus>
+                                    <input class="form-control" placeholder="E-mail" id="id" name="id" type="text" autofocus>
                                 </div>
                                 <div class="form-group">
-                                    <input class="form-control" placeholder="Password" id="password" name="password" type="password" value="">
+                                    <input class="form-control" placeholder="Password" id="nombre" name="nombre" type="text" value="">
                                 </div>
+								<div class="form-group">
+                                    <input class="form-control" placeholder="Precio" id="precio" name="precio" type="text" value="">
+                                </div>
+								
 								<div class="form-group">
 									<label class="control-label" id="error"></label>
 								</div>
-                                <div class="checkbox">
-                                    <label>
-                                        <input name="remember" type="checkbox" value="Remember Me">Remember Me
-                                    </label>
-                                </div>
+								
+                                
                                 <!-- Change this to a button or input when using this as a form -->
-                                <input  type="submit" class="btn btn-lg btn-success btn-block" value="Entrar" onclick="Entrar()"></a>
+                                <input  type="submit" class="btn btn-lg btn-success btn-block" value="Guardar" onclick="Entrar()"></a>
                             </fieldset>
                         
                     </div>
@@ -91,14 +92,14 @@
 
     <!-- Custom Theme JavaScript -->
     <script src="../admin/dist/js/sb-admin-2.js"></script>
-	<script type="text/javascript" src="../js/ajax.js"></script>
 	<script >
 	    function Entrar() {
 	    
-		var correo = document.getElementById('email').value;
-		var pass = document.getElementById('password').value;
+		var iden = document.getElementById('id').value;
+		var name = document.getElementById('nombre').value;
+		var price = document.getElementById('precio').value;
 		
-		if(correo==""||pass==""){
+		if(iden==""||name==""||price==""){
 			
 			$("#error").html(
 			  "Ingrese todos los campos antes de proceder."
@@ -110,10 +111,12 @@
 		  type: "POST",
 		  dataType: "json",
 		  url: "funciones.php", //Relative or absolute path to response.php file
-		  data: {action: "login",password: pass, email:correo},
+		  data: {action: "crear",id: iden, nombre: name, precio: price},
 		  success: function(data) {
-			if(data["result"]=="1"||data["result"]=="2"){
-				 window.location = "../admin.php";
+		  
+		      alert(data["result"]);
+			if(data["result"]=="1"){
+				 alert("Exito");
 			}else {
 			$("#error").html(
 			  "Error, contraseña y/o email incorrectos"

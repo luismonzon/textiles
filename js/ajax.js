@@ -1,38 +1,3 @@
-﻿
-	function Entrar() {
-		var correo = document.getElementById('email').value;
-		var pass = document.getElementById('password').value;
-		if(correo==" "||pass==" "){
-			
-			$("#error").html(
-			  "Ingrese todos los campos antes de proceder."
-			);
-			
-		}else{
-		
-		var request = $.ajax({
-		  type: "POST",
-		  dataType: "json",
-		  url: "funciones.php", //Relative or absolute path to response.php file
-		  data: {action: "login",password: pass, email:correo},
-		  success: function(data) {
-			if(data["result"]=="1"||data["result"]=="2"){
-				 window.location = "../admin.php";
-			}else {
-			$("#error").html(
-			  "Error, contraseña y/o email incorrectos"
-			);
-			}
-		  }
-		});
-		request.fail(function (jqXHR, textStatus, errorThrown) {
-		alert(textStatus +"  "+ errorThrown);});
-		
-		}
-		
-		
-	}
-	
 
 $(function () {
 		$('.pglinks').on({

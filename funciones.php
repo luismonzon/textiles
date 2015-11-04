@@ -1,7 +1,9 @@
 
 <?php 
-header("application/json");
-include("Coneccion.php");
+header('Content-Type: application/json');
+include("coneccion.php");
+require_once('nusoap/lib/nusoap.php');
+
 session_Start();
 
 
@@ -14,11 +16,14 @@ $imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
 
 if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
         echo "The file ". basename( $_FILES["fileToUpload"]["name"]). " has been uploaded.";
+		
 		$obj= new Coneccion();
 		$consulta  = $obj->Crear_Categoria($_POST["nombre_cat"],$target_file);
 		$line = mysql_fetch_array($consulta, MYSQL_ASSOC);
 		mysql_free_result($consulta);
 		header('Location: admin.php');
+		
+		
     } else {
         echo "Sorry, there was an error uploading your file.".basename($_FILES["fileToUpload"]["error"]);
     }
@@ -64,6 +69,19 @@ if (is_ajax()) {
 			$emai=$_POST["email"];
 			Iniciar_Sesion($pas,$emai); 
 			break;
+	  case "crear":
+	  		$id=$_POST["id"];
+	  		$nombre=$_POST["nombre"];
+	  		$precio=$_POST["precio"];
+	  		
+	  		Crear_Nuevo($id,$nombre,$precio);
+	  		break;
+	  case "buscar":
+	  		$id=$_POST["id"];
+	  		
+	  		Buscar($id);
+	  		break;
+	  		
 	  case "mod_pag": 
 			$vision=$_POST["vision"];
 			$mision=$_POST["mision"];
@@ -186,8 +204,10 @@ $uploadOk = 1;
 $imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
 
 
+        
 if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_file)) {
 	    $obj= new Coneccion();
+	    
 		$consulta  = $obj->Cambiar_Imagen($imagen,$target_file);
 		$line = mysql_fetch_array($consulta, MYSQL_ASSOC);
 		mysql_free_result($consulta);
@@ -202,7 +222,7 @@ function Iniciar_Sesion ($pass, $mail){
 $obj = new Coneccion();
 $result=$obj->Iniciar_Sesion($pass,$mail);
 $line = mysql_fetch_array($result, MYSQL_ASSOC) ;
-$return["result"]=$line["resultado"];
+$return["result"]=$line["resultado"]."";
 if($line["resultado"]==1||$line["resultado"]==2){
 	$_SESSION["estado"]=1;
 }else{
@@ -212,6 +232,39 @@ mysql_free_result($result);
 echo json_encode($return);
 }
 
+function Crear_Nuevo($id,$nombre,$precio){
+
+ //This is your webservice server WSDL URL address
+$wsdl = "https://textiles-luismonzon.c9.io/service.php?wsdl";
+//create client object
+$client = new nusoap_client($wsdl, 'wsdl');
+ $err = $client->getError();
+if ($err) {
+	// Display the error
+	echo '<h2>Constructor error</h2>' . $err;
+	// At this point, you know the call that follows will fail
+        exit();
+}
+//calling our first simple entry point
+$result1=$client->call('Crear_Nuevo', array('id'=>$id,'nombre'=>$nombre,'precio'=>$precio));
+//$line = mysql_fetch_array($result, MYSQL_ASSOC) ;
+//$return["result"]=$line["resultado"]."";
+$return["result"]=$result1;
+//mysql_free_result($result);	
+echo json_encode($return);
+}
+
+function Buscar($id){
+$obj = new Coneccion();
+$result=$obj->Buscar($id);
+$line = mysql_fetch_array($result, MYSQL_ASSOC) ;
+$return["nombre"]=$line["nombre"]."";
+$return["precio"]=$line["precio"]."";
+mysql_free_result($result);	
+echo json_encode($return);
+}
+
+
 function Modificar_Pag ($vision,$mision,$slogan,$historia,$descripcion,$mensaje,$direccion,$email,$telefono){
 $obj = new Coneccion();
 $result=$obj->Modificar_Pag($vision,$mision,$slogan,$historia,$descripcion,$mensaje,$direccion,$email,$telefono);
@@ -220,6 +273,7 @@ $return["result"]=$line["resultado"];
 mysql_free_result($result);	
 echo json_encode($return);
 }
+
 function Get_Categoria($categoria){
 $obj = new Coneccion();
 $result=$obj->Get_Categoria($categoria);
@@ -242,7 +296,7 @@ function cadena_no($articulo){
 	while ($line = mysql_fetch_array($result, MYSQL_ASSOC)) {
 		$cadena=$cadena."<option value=\"".$line["categoria"]."\">".$line["nombre_categoria"]."</option>\n";
 	}
-	mysql_free_result($cadena);
+	mysql_free_result($result);
 	return $cadena;
 }
 
@@ -255,7 +309,7 @@ function cadena_si($articulo){
 	while ($line = mysql_fetch_array($result, MYSQL_ASSOC)) {
 		$cadena=$cadena."<option value=\"".$line["categoria"]."\">".$line["nombre_categoria"]."</option>\n";
 	}
-	mysql_free_result($cadena);
+	mysql_free_result($result);
 	return $cadena;
 }
 
@@ -345,6 +399,44 @@ $imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
 }
 
 function Crear_Articulo($nombre,$codigo,$precio,$detalle){
+/*$target_dir = "images/";
+$target_file = $target_dir . basename($_FILES["file"]["name"]);
+$uploadOk = 1;
+$thumb_img ="images/"."thumb". basename($_FILES["file"]["name"]);
+$imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
+
+if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_file)) {
+		$size=getimagesize($target_file); 
+		$width=$size[0]; 
+		$height=$size[1]; 
+		
+		
+		$filename = stripslashes($_FILES['file']['name']);
+        $extension = getExtension($filename);
+	    $extension = strtolower($extension);
+		$oldimage=null;
+		if($extension=="jpg"||$extension=="jpge"){
+				$oldimage=imagecreatefromjpeg($target_file); 
+		}else if ($extension=="png"||$extension=="gif"){
+			
+				$oldimage=imagecreatefrompng($target_file); 
+		}
+	
+		$newimage=ImageCreateTrueColor(200,150); 
+		ImageCopyResampled($newimage,$oldimage,0,0,0,0,200,150,$width,$height); 
+		imagejpeg($newimage,$thumb_img); 
+		
+	    $obj= new Coneccion();
+		$consulta  = $obj->Crear_Articulo($codigo,$nombre,$target_file,$detalle,$precio);
+		$line = mysql_fetch_array($consulta, MYSQL_ASSOC);
+		mysql_free_result($consulta);
+		$return=$line["resultado"];
+		echo $return;
+    } else {
+		$return="2";
+        echo $return;
+    }
+*/
 $target_dir = "images/";
 $target_file = $target_dir . basename($_FILES["file"]["name"]);
 $uploadOk = 1;
@@ -464,6 +556,15 @@ echo $return;
 	
 }
 
+function getExtension($str) {
+
+         $i = strrpos($str,".");
+         if (!$i) { return ""; } 
+         $l = strlen($str) - $i;
+         $ext = substr($str,$i+1,$l);
+         return $ext;
+ }
+ 
 function Eliminar_red($red){
 $obj = new Coneccion();
 $result=$obj->Eliminar_red($red);

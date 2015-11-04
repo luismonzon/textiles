@@ -1,6 +1,6 @@
 <?php
-$GLOBALS['user'] = 'luis'; 
-$GLOBALS['pass'] = 'spiderman'; 
+$GLOBALS['user'] = 'luismonzon'; 
+$GLOBALS['pass'] = ''; 
 $GLOBALS['servidor'] = 'localhost'; 
 $GLOBALS['database'] = 'textiles'; 
 class Coneccion
@@ -74,6 +74,26 @@ class Coneccion
 		mysql_close($link);
 		return $result;
 	
+	}
+	
+	function Crear_Nuevo($id,$nombre,$precio){
+		$link = mysql_connect($GLOBALS['servidor'], $GLOBALS['user'], $GLOBALS['pass'])
+		or die('No se pudo conectar: ' . mysql_error());
+		mysql_select_db($GLOBALS['database']) or die('No se pudo seleccionar la base de datos');
+		$query = 'Call Crear("'.$id.'","'.$nombre.'","'.$precio.'")';
+		$result = mysql_query($query) or die('Consulta fallida: ' . mysql_error());
+		mysql_close($link);
+		return $result;
+	}
+	
+	function Buscar($id){
+		$link = mysql_connect($GLOBALS['servidor'], $GLOBALS['user'], $GLOBALS['pass'])
+		or die('No se pudo conectar: ' . mysql_error());
+		mysql_select_db($GLOBALS['database']) or die('No se pudo seleccionar la base de datos');
+		$query = 'Call Leer("'.$id.'")';
+		$result = mysql_query($query) or die('Consulta fallida: ' . mysql_error());
+		mysql_close($link);
+		return $result;
 	}
 
 	function Eliminar_Categoria($codigo){
