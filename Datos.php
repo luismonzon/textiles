@@ -114,7 +114,7 @@
 		  data: {action: "crear",id: iden, nombre: name, precio: price},
 		  success: function(data) {
 		  
-		      alert(data["result"]);
+		      alert(data);
 			if(data["result"]=="1"){
 				 alert("Exito");
 			}else {

@@ -233,37 +233,35 @@ echo json_encode($return);
 }
 
 function Crear_Nuevo($id,$nombre,$precio){
-$obj = new Coneccion();
-$result=$obj->Crear_Nuevo($id,$nombre,$precio);
- //This is your webservice server WSDL URL address
-//$wsdl = "https://textiles-luismonzon.c9.io/service.php?wsdl";
-//create client object
-//$client = new nusoap_client($wsdl, 'wsdl');
- //$err = $client->getError();
-//if ($err) {
-	// Display the error
-//	echo '<h2>Constructor error</h2>' . $err;
-	// At this point, you know the call that follows will fail
-  //      exit();
-//}
-//calling our first simple entry point
-//$result1=$client->call('Crear_Nuevo', array('id'=>$id,'nombre'=>$nombre,'precio'=>$precio));
-$line = mysql_fetch_array($result, MYSQL_ASSOC) ;
-$return["result"]=$line["resultado"]."";
-//$return["result"]=$result1;
-mysql_free_result($result);	
+$client = new nusoap_client("https://textiles-luismonzon.c9.io/service.php");
+$error = $client->getError();
+if ($error) {
+    echo "<h2>Constructor error</h2><pre>" . $error . "</pre>";
+}
+
+$result = $client->call("Crear_Nuevo", array("id" => $id,"nombre"=>$nombre,"precio"=>$precio));
+
+$return["result"]=$result;
+//mysql_free_result($result);	
 echo json_encode($return);
+
 }
 
 function Buscar($id){
-$obj = new Coneccion();
-$result=$obj->Buscar($id);
-$line = mysql_fetch_array($result, MYSQL_ASSOC) ;
+$client = new nusoap_client("https://textiles-luismonzon.c9.io/service.php");
+$error = $client->getError();
+if ($error) {
+    echo "<h2>Constructor error</h2><pre>" . $error . "</pre>";
+}
 
+$result = $client->call("Buscar", array("id" => $id));
 
-$return["nombre"]=$line["nombre"]."";
-$return["precio"]=$line["precio"]."";
-mysql_free_result($result);	
+$valor = explode(";",$result);
+
+$return["nombre"]=$valor[1];
+$return["precio"]=$valor[2];
+
+//mysql_free_result($result);	
 echo json_encode($return);
 }
 
